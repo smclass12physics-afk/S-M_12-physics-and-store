@@ -258,7 +258,8 @@ body { display:flex; height:100vh; overflow:hidden; }
 
 <div id="viewer" role="main" aria-label="Document viewer">
   <div id="imgWrapper">
-    <img id="contentImg" src="" alt="Page">
+    <img id="contentImg" src="" alt="Page" decoding="async" loading="eager">
+
   </div>
 </div>
 
@@ -621,7 +622,6 @@ let data = {
 	
  
 };
-
 /* ================= STATE VARS ================= */
 let currentList = [], index = 0;
 let zoomLevel = 1, autoScale = 1;
@@ -665,13 +665,35 @@ menuBtn.addEventListener('click', () => {
 /* ============== LOAD SUBLIST ============== */
 function loadSub(code){
   currentList = data[code] || [];
-  index = 0; imgX = imgY = 0;
+  preloadFirst(currentList);   // ← new line
+
+  index = 0;
+  imgX = imgY = 0;
+
   exitPDF();
   loadPage(true);
-  controls.style.display = 'flex';
-    if (window.innerWidth <= 1180) sidebar.classList.remove('open');
 
+  controls.style.display = 'flex';
+  if (window.innerWidth <= 1180) sidebar.classList.remove('open');
 }
+
+
+
+
+
+
+
+
+function preloadFirst(list){
+    if(list.length > 0){
+        let firstUrl = list[0];
+        if(!firstUrl.toLowerCase().endsWith(".pdf")){
+            let imgPre = new Image();
+            imgPre.src = firstUrl;
+        }
+    }
+}
+
 
 /* ============== LOAD PAGE (IMAGE or PDF) ============== */
 function loadPage(first=false){
@@ -719,6 +741,8 @@ if (!isDesktop && w >= 900 && w < 1200 && w > h) {
   // in case onload doesn't fire or is cached, still update
   pageNum.textContent = `Page ${index+1} / ${currentList.length}`;
   pageInput.value = index+1;
+  preloadNext();
+
 }
 
 /* ============== CLAMP UTILITY ============== */
@@ -1012,7 +1036,17 @@ document.addEventListener("click", (e) => {
   }
 });
 
+function preloadNext() {
+    if (index + 1 < currentList.length) {
+        let nextUrl = currentList[index + 1];
+        if (!nextUrl.toLowerCase().endsWith('.pdf')) {
+            let imgPre = new Image();
+            imgPre.src = nextUrl;
+        }
+    }
+}
+
+
 </script>
 </body>
 </html>
-
