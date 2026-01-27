@@ -103,6 +103,65 @@
 
   .no-results {text-align:center;color:#ddd;padding:14px;font-size:1rem;}
   
+  
+  
+  
+.book-card.featured {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 136, 0, 0.4),
+    rgba(199, 97, 80, 0.4)
+  );
+  border: 2px solid rgba(255, 215, 0, 0.75);
+  box-shadow: 0 6px 16px rgba(255, 200, 0, 0.35);
+  backdrop-filter: blur(6px); /* slightly stronger blur to compensate */
+}
+
+
+
+.book-card.featured h3 {
+  color: #111;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.book-card.featured .price {
+  color: #111;
+  font-size: 1.1rem;
+}
+
+
+.book-card.featured::before {
+  content: "🔥 BEST VALUE";
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0,0,0,0.85);
+  color: #ffd700;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.book-card {
+  position: relative;
+  padding: 14px;
+  border-radius: 14px;
+
+  /* ✅ yellow border for ALL products */
+  border: 1.5px solid rgba(255, 215, 0, 0.7);
+  background: rgba(255,255,255,0.03);
+}
+
+
+.book-card.featured .price {
+  color: #ffd700;              /* gold yellow */
+  font-weight: 800;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+
+  
 </style>
 </head>
 <body>
@@ -225,6 +284,21 @@ const promoCodes = {
 
 // Books Data
 const books=[
+{
+  id: 'physicsC',
+  category: 'physics',
+  title: 'COMPLET PACKAGE + FREE DERIVATION BOOKLET',
+  price: 1270,
+  featured: true,
+  images:[
+      'https://i.ibb.co/XZ5QvHv6/2.png',
+      'https://i.ibb.co/WNZTWPwv/LOGO-PNG-2025-fab.png',
+      'https://dummyimage.com/400x300/222/fff&text=Physics+3'
+    ],
+   pdfLink:'https://drive.google.com/file/d/1nG2KCGVmUVBve7IgkZOCndS1zxBp-YgK/preview',
+    paymentLink:'https://payments.cashfree.com/forms/CSMP',
+    description:'A complete Physics study package designed for clarity and concept-building.'
+},
     {
     id:'physicsC',
     title:' COMPLET PACKAGE + FREE DERIVATION BOOKLET',
@@ -444,8 +518,9 @@ function renderCards(filter=''){
   }
 
   list.forEach((b,idx)=>{
-    const card=document.createElement('div');
-    card.className='book-card';
+  const card = document.createElement('div');
+  card.className = 'book-card' + (b.featured ? ' featured' : '');
+
     // clicking image opens modal (keeps same openModal signature)
     card.innerHTML=
       `<img src="${b.images[0]}" alt="${b.title}" onclick="openModal(${JSON.stringify(b).replace(/"/g,'&quot;')})">
