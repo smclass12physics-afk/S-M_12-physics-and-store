@@ -20,7 +20,13 @@ body { display:flex; height:100vh; overflow:hidden; }
   flex:1;
   background: url("https://i.ibb.co/RTjxjG88/class12.jpg") no-repeat center center;
   background-size: cover;
-  overflow-y:auto !important;
+  
+  
+  
+  overflow-y:auto;
+  
+  
+  
   overflow-x:hidden;
   position:relative;
   display:flex;
@@ -192,6 +198,26 @@ body { display:flex; height:100vh; overflow:hidden; }
   to{ transform:scale(1); opacity:1 }
 }
 
+	
+	
+	
+#viewer {
+  overflow-y:auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+
+#contentImg{
+  will-change: transform;
+  backface-visibility: hidden;
+  touch-action: pinch-zoom;
+}
+
+
+	
+	
+	
 	
 </style>
 </head>
@@ -1231,7 +1257,8 @@ viewer.addEventListener('touchstart', e => {
         if(canvas){ pdfX = parseFloat(canvas.dataset.x||0); pdfY = parseFloat(canvas.dataset.y||0); canvas.style.pointerEvents = 'auto'; }
       }
     } else {
-      drag = true; startX = e.touches[0].pageX; startY = e.touches[0].pageY; startImgX = imgX; startImgY = imgY;
+  drag = zoomLevel > autoScale + 0.01;
+ startX = e.touches[0].pageX; startY = e.touches[0].pageY; startImgX = imgX; startImgY = imgY;
     }
   } else if(e.touches.length === 2){
     lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
@@ -1243,8 +1270,41 @@ viewer.addEventListener('touchstart', e => {
   }
 });
 
+
+
+
+
+
 viewer.addEventListener('touchmove', e => {
-  if(e.cancelable) e.preventDefault();
+
+  // ⭐ Always allow pinch zoom
+  if(e.touches.length === 2){
+    if(e.cancelable) e.preventDefault();
+  }
+
+  // ⭐ Allow normal scrolling when single finger & not zoomed
+  else if(!pdfMode.active && zoomLevel <= autoScale + 0.01){
+    return;
+  }
+
+  else if(pdfMode.active && Math.abs(pdfMode.scale - 1) < 0.01){
+    return;
+  }
+
+  else {
+    if(e.cancelable) e.preventDefault();
+  }
+
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
   if(e.touches.length === 1){
     if(pdfMode.active && pdfDrag){
       const canvas = document.getElementById('pdfPage');
@@ -1283,9 +1343,23 @@ viewer.addEventListener('touchmove', e => {
       // ensure canvas receives pointer events when zoomed
       canvas.style.pointerEvents = 'auto';
     } else {
-      zoomLevel = Math.max(autoScale, Math.min(4, zoomLevel * zoomChange));
-      imgX = pinchStart.left + (pinchCenter.x * (zoomChange - 1));
-      imgY = pinchStart.top + (pinchCenter.y * (zoomChange - 1));
+	
+      let newZoom = Math.max(autoScale, Math.min(4, zoomLevel * zoomChange));
+
+// ⭐ Calculate pinch focus relative to image
+let dx = pinchCenter.x - imgX;
+let dy = pinchCenter.y - imgY;
+
+// ⭐ Adjust position so pinch stays fixed
+imgX -= dx * (newZoom / zoomLevel - 1);
+imgY -= dy * (newZoom / zoomLevel - 1);
+
+zoomLevel = newZoom;
+
+	  
+	  
+	  
+	  
       let vw = viewer.clientWidth, vh = viewer.clientHeight;
       let iw = img.naturalWidth * zoomLevel, ih = img.naturalHeight * zoomLevel;
       imgX = clamp(imgX, Math.min(0, vw - iw), 0); imgY = clamp(imgY, Math.min(0, vh - ih), 0);
@@ -1524,4 +1598,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
 
